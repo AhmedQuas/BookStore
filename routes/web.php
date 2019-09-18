@@ -16,3 +16,5 @@ Route::get('/', function () {
 });
 
 Route::resource('books','BooksController');
+
+Route::get('/books/{title_slug}/download/{extension}', 'BooksController@download');

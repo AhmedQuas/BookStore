@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Book;
+use Illuminate\Support\Facades\Storage;
 
 class BooksController extends Controller
 {
@@ -39,8 +40,8 @@ class BooksController extends Controller
         $validate_data = $request->validate([
             'title' => 'required|string',
             'author' => 'string|max:100',
-            'publish_date' => 'integer',
-            'pages_number' => 'integer',
+            'publish_date' => 'integer|nullable',
+            'pages_number' => 'integer|nullable',
             'cover_image' => 'nullable|image|mimes:jpeg,png|max:1999',
             'file' => 'nullable|file|mimes:pdf,epub,mobi',
         ]);
@@ -56,7 +57,7 @@ class BooksController extends Controller
         if($request->hasFile('file'))
         {
             $file_name = $request->file('file')->getClientOriginalName();
-            $request->file('cover_image')->storeAs('public/books',$file_name);
+            $request->file('file')->storeAs('public/books',$file_name);
         }
         if(empty($request->input('description')))
             $description='No description provided';
@@ -97,9 +98,12 @@ class BooksController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($title_slug)
     {
-        //
+        $book=Book::where('title_slug','=',$title_slug)->first();
+
+        //return var_dump($book);
+        return view('books.show')->with('book',$book);
     }
 
     /**
@@ -134,5 +138,18 @@ class BooksController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    /**
+     * Download the specified file form storage
+     *
+     */
+    public function download($title_slug, $ext)
+    {
+        // This function should be expanded in the future for other formats & user roles
+
+        $book=Book::where('title_slug','=',$title_slug)->first();
+
+        return response()->download('storage/books/'.$book->filename);
     }
 }

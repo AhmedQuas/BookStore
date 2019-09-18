@@ -8,7 +8,7 @@
                 @foreach($books as $book)
                     <div class="col-3 mt-4">
                         <a href="/books/{{$book->title_slug}}">
-                            <div style="background-image: url('/storage/books/{{$book->cover_image}}'); width: 100%; height: 200px; background-color: lightgreen;"></div>
+                            <div style="background-image: url('/storage/cover_images/{{$book->cover_image}}'); width: 100%; height: 200px; background-color: lightgreen; background-size: contain; background-position: center"></div>
                             <div>
                                 <p class="text-center mb-1 mt-2">{{$book->title}}</p>
                                 <p class="text-center">{{$book->author}}</p>

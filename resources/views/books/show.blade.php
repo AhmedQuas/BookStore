@@ -18,6 +18,8 @@
                 <p>{{$book->description}}</p>
                 <p class="btn btn-primary w-100 my-4">Download section</p>
                 <a href="/books/{{$book->title_slug}}/download/{{pathinfo($book->filename, PATHINFO_EXTENSION)}}">{{$book->filename}}</a>
+                <p class="btn btn-primary w-100 my-4">Admin section</p>
+                <a href="/books/{{$book->title_slug}}/edit">Edit</a>
             </div>
         </div>
     </div>

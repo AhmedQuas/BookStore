@@ -86,6 +86,7 @@ class BooksController extends Controller
         $book->cover_image = $cover_image_name;
         $book->pages_number = $request->input('pages_number');
 
+
         $book->save();
 
         return redirect('/books')->with('success', $book->title.' - another book added');
@@ -112,9 +113,11 @@ class BooksController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($title_slug)
     {
-        //
+        $book =Book::where('title_slug','=',$title_slug)->first();
+
+        return view('books.edit')->with('book', $book);
     }
 
     /**
@@ -124,9 +127,66 @@ class BooksController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $title_slug)
     {
-        //
+        $this->validate($request,[
+            'title' => 'required|string',
+            'author' => 'string|max:100',
+            'publish_date' => 'integer|nullable',
+            'pages_number' => 'integer|nullable',
+            'cover_image' => 'nullable|image|mimes:jpeg,png|max:1999',
+            'file' => 'nullable|file|mimes:pdf,epub,mobi',
+        ]);
+
+        $cover_image_name='no-image.png';
+        $file_name='';
+
+        if($request->hasFile('cover_image'))
+        {
+            $cover_image_name = $request->file('cover_image')->getClientOriginalName();
+            $request->file('cover_image')->storeAs('public/cover_images',$cover_image_name);
+        }
+        if($request->hasFile('file'))
+        {
+            $file_name = $request->file('file')->getClientOriginalName();
+            $request->file('file')->storeAs('public/books',$file_name);
+        }
+        if(empty($request->input('description')))
+            $description='No description provided';
+        else
+            $description=$request->input('description');
+
+        $title_slug = $request->input('title');
+
+        //removing uppercase, spaces & polish special characters
+        $title_slug = str_replace(' ','-', $title_slug);
+        $title_slug=str_replace(
+            ['ą','ć','ę','ł','ń','ó','ś','ź','ż','Ą','Ć','Ę','Ł','Ń','Ó','Ś','Ź','Ż'],
+            ['a','c','e','l','n','o','s','z','z','a','c','e','l','n','o','s','z','z',],
+            $title_slug
+        );
+        $title_slug = strtolower($title_slug);
+
+
+        $book = Book::where('title_slug','=',$title_slug)->first();
+
+        $book->title = $request->input('title');
+        $book->title_slug = $title_slug;
+        $book->author = $request->input('author');
+        $book->publish_date = $request->input('publish_date');
+        $book->pages_number = $request->input('pages_number');
+        $book->description = $description;
+
+        if($description!='')
+            $book->description = $description;
+        if($file_name!='')
+            $book->filename = $file_name;
+        if($cover_image_name!='no-image.png')
+            $book->cover_image = $cover_image_name;
+
+        $book->save();
+
+        return redirect('/books/'.$book->title_slug)->with('success', $book->title.' - successfully updated');
     }
 
     /**

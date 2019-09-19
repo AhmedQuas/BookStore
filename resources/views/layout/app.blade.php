@@ -12,7 +12,7 @@
     </head>
     <body>
         @include('inc.menu')
-        <article>
+        <article class="container">
             @yield('content')
         </article>
     </body>
